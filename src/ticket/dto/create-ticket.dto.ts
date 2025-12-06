@@ -5,6 +5,8 @@ import {
   IsEnum,
   IsNumberString,
   MaxLength,
+  IsInt,
+  Min,
 } from 'class-validator';
 
 export enum TipoTicket {
@@ -52,4 +54,9 @@ export class CreateTicketDto {
   @IsOptional()
   @IsNumberString()
   asignadoAId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  tiempoEstimado?: number;
 }

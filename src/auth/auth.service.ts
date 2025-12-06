@@ -87,14 +87,20 @@ export class AuthService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<IResponse<any>> {
     try {
+
       const data = await this.usersRepository.findOne({
         where: {
           IdUser: id
         },
         select: ['IdUser', 'Name', 'Rol', 'Active']
       });
+
+      if(!data){
+        throw new NotFoundException("No existe el Usuario")
+      }
+
       return {
         code: '000',
         message: 'success',
@@ -105,11 +111,33 @@ export class AuthService {
     }
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+  async update(id: number, updateAuthDto: UpdateAuthDto): Promise<IResponse<any>> {
+    try {
+
+      await this.findOne(id)
+
+      await this.usersRepository.update(id,{
+        Name:updateAuthDto.Name,
+        Rol:updateAuthDto.Rol,
+        Active:updateAuthDto.Active
+      })
+
+      const result = await this.findOne(id)
+      return {
+        code: '000',
+        message: 'Se actulizo con exito!',
+        data: result.data
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+   async logout(): Promise<IResponse<any>> {
+    return {
+      code: '000',
+      message: 'Sesión cerrada con éxito',
+      data: null,
+    };
   }
 }

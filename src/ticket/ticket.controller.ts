@@ -22,7 +22,7 @@ export class TicketController {
     return this.ticketService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
     return this.ticketService.update(+id, updateTicketDto);
   }

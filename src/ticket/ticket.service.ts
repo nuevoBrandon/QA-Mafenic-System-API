@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { IResponse } from 'src/Interfaces';
@@ -27,6 +27,7 @@ export class TicketService {
       ticket.asignadoAId = createTicketDto.asignadoAId ?? null;
       ticket.descripcion = createTicketDto.descripcion;
       ticket.tipo = createTicketDto.tipo;
+      ticket.tiempoEstimado = createTicketDto.tiempoEstimado;
       await this.ticketRepository.save(ticket);
       return {
         code: '000',
@@ -111,9 +112,33 @@ export class TicketService {
     }
   }
 
-  update(id: number, updateTicketDto: UpdateTicketDto) {
-    return `This action updates a #${id} ticket`;
+  async update(id: any, updateTicketDto: UpdateTicketDto): Promise<IResponse<any>> {
+  try {
+
+    const ticket = await this.ticketRepository.findOne({
+      where: { idTicket:id }, 
+    });
+
+    if (!ticket) {
+      throw new NotFoundException('No existe el ticket');
+    }
+    
+    Object.assign(ticket, updateTicketDto);
+    const updatedTicket = await this.ticketRepository.save(ticket);
+
+    return {
+      code: '000',
+      message: 'Se actualizó con éxito!',
+      data: updatedTicket,
+    };
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw error;
+    }
+    throw new InternalServerErrorException(error?.message || 'Error interno del servidor');
   }
+}
+
 
   remove(id: number) {
     return `This action removes a #${id} ticket`;

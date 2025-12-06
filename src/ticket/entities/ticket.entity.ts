@@ -11,7 +11,7 @@ import {
 
 @Entity({ name: 'tickets' })
 export class Ticket {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint', name: 'id_ticket' })
+  @PrimaryGeneratedColumn('increment', { type: 'int4', name: 'id_ticket' })
   idTicket: number;
 
   @Column({ name: 'tipo_ticket', type: 'varchar', length: 20 })
@@ -36,6 +36,10 @@ export class Ticket {
 
   @Column({ name: 'asignado_a_id', type: 'bigint', nullable: true })
   asignadoAId?: string | null;
+
+  @Column({ name: 'tiempo_estimado', type: 'int', nullable: true })
+  tiempoEstimado?: number;
+
 
   @CreateDateColumn({
     name: 'fecha_creacion',

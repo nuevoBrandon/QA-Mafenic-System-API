@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateAuthDto {
   @IsString()
@@ -8,6 +8,10 @@ export class CreateAuthDto {
   @IsString()
   @IsNotEmpty()
   Rol: string;
+
+  @IsString()
+  @IsOptional()
+  Active?: string;
 
   @IsString()
   @IsNotEmpty()
