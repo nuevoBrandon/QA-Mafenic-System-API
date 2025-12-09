@@ -1,4 +1,4 @@
-import { User } from 'src/auth/entities/user.entity';
+import { Expose } from 'class-transformer';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Generated,
 } from 'typeorm';
 
 @Entity({ name: 'tickets' })
@@ -14,11 +15,17 @@ export class Ticket {
   @PrimaryGeneratedColumn('increment', { type: 'int4', name: 'id_ticket' })
   idTicket: number;
 
+  @Column({ type: 'varchar', length: 10, name: 'correlativo', unique: true })
+  correlativo: string;
+
   @Column({ name: 'tipo_ticket', type: 'varchar', length: 20 })
   tipoTicket: string;
 
   @Column({ name: 'titulo', type: 'varchar', length: 200 })
   titulo: string;
+
+  @Column({ name: 'activo'})
+  activo: boolean;
 
   @Column({ name: 'descripcion', type: 'text' })
   descripcion: string;

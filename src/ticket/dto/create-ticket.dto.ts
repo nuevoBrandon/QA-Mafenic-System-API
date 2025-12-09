@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -7,6 +8,7 @@ import {
   MaxLength,
   IsInt,
   Min,
+  IsBoolean,
 } from 'class-validator';
 
 export enum TipoTicket {
@@ -45,7 +47,7 @@ export class CreateTicketDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  tipo: string; 
+  tipo: string;
 
   @IsNumberString()
   @IsNotEmpty()
@@ -59,4 +61,9 @@ export class CreateTicketDto {
   @IsInt()
   @Min(1)
   tiempoEstimado?: number;
+
+  @IsOptional()
+  @Type(() => Boolean) 
+  @IsBoolean()
+  activo?: boolean;
 }

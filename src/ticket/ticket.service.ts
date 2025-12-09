@@ -18,9 +18,28 @@ export class TicketService {
 
   async create(createTicketDto: CreateTicketDto): Promise<IResponse<any>> {
     try {
+
+      const last = await this.ticketRepository
+      .createQueryBuilder('t')
+      .select('t.correlativo', 'correlativo')
+      .orderBy('t.idTicket', 'DESC')
+      .limit(1)
+      .getRawOne<{ correlativo: string | null }>();
+
+       let nextNumber = 1;
+    if (last?.correlativo) {
+     
+      const numericPart = parseInt(last.correlativo.replace(/\D/g, ''), 10);
+      if (!isNaN(numericPart)) {
+        nextNumber = numericPart + 1;
+      }
+    }
+    const correlativo = `INC${nextNumber.toString().padStart(3, '0')}`;
+
       const ticket = new Ticket()
       ticket.titulo = createTicketDto.titulo;
       ticket.estado = createTicketDto.estado;
+      ticket.correlativo = correlativo;
       ticket.tipoTicket = createTicketDto.tipoTicket;
       ticket.creadoPorId = createTicketDto.creadoPorId;
       ticket.prioridad = createTicketDto.prioridad;
@@ -28,11 +47,12 @@ export class TicketService {
       ticket.descripcion = createTicketDto.descripcion;
       ticket.tipo = createTicketDto.tipo;
       ticket.tiempoEstimado = createTicketDto.tiempoEstimado;
-      await this.ticketRepository.save(ticket);
+      ticket.activo = false;
+      const result = await this.ticketRepository.save(ticket);
       return {
         code: '000',
         message: 'Se creo con exito!',
-        data: null
+        data: result
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message)
@@ -87,8 +107,6 @@ export class TicketService {
         },
         select: ['IdUser', 'Name', 'Rol', 'Active']
       });
-
-      console.log("asignadoA",asignadoA)
 
       const creadoPor = await this.usersRepository.findOne({
         where: {
