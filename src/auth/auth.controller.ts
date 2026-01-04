@@ -34,6 +34,11 @@ export class AuthController {
     return this.authService.update(+id, updateAuthDto);
   }
 
+  @Post('delete/:id')
+  delete(@Param('id') id: string) {
+    return this.authService.delete(+id);
+  }
+
   @Post('logout')
   logout() {
     return this.authService.logout();

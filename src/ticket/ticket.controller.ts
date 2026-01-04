@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
+import {type  ITicket } from '../Interfaces/index';
+
 
 @Controller('ticket')
 export class TicketController {
@@ -13,8 +15,10 @@ export class TicketController {
   }
 
   @Get()
-  findAll() {
-    return this.ticketService.findAll();
+  findAll(
+    @Query() param: ITicket
+  ) {
+    return this.ticketService.findAll(param);
   }
 
   @Get(':id')

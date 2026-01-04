@@ -19,25 +19,25 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<IResponse<any>> {
     try {
-      const {Name,Password} = loginDto
-      const user = await  this.usersRepository.findOne({
-        where:{
-          Name:Name,
-          Active:'Y'
+      const { Name, Password } = loginDto
+      const user = await this.usersRepository.findOne({
+        where: {
+          Name: Name,
+          Active: 'Y'
         }
       })
 
-      if(!user) {
+      if (!user) {
         throw new NotFoundException("Usuario no encontrado")
       }
 
-      const validatePassword = await bcrypt.compare(Password,user.Password)
+      const validatePassword = await bcrypt.compare(Password, user.Password)
 
-      if(!validatePassword) {
+      if (!validatePassword) {
         throw new NotFoundException("Contraseña Incorrecta")
       }
 
-       const token = this.jwtService.sign({
+      const token = this.jwtService.sign({
         id: user.IdUser,
         name: user.Name,
         rol: user.Rol,
@@ -72,13 +72,13 @@ export class AuthService {
     }
   }
 
-  async findAll():  Promise<IResponse<any>> {
+  async findAll(): Promise<IResponse<any>> {
     try {
       const data = await this.usersRepository.find({
-        select: ['IdUser', 'Name', 'Rol', 'Active','CreateDate','Password'],
+        select: ['IdUser', 'Name', 'Rol', 'Active', 'CreateDate', 'Password'],
         order: {
-        IdUser: 'DESC',
-      },
+          IdUser: 'DESC',
+        },
       });
       return {
         code: '000',
@@ -97,10 +97,10 @@ export class AuthService {
         where: {
           IdUser: id
         },
-        select: ['IdUser', 'Name', 'Rol', 'Active','Password']
+        select: ['IdUser', 'Name', 'Rol', 'Active', 'Password']
       });
 
-      if(!data){
+      if (!data) {
         throw new NotFoundException("No existe el Usuario")
       }
 
@@ -119,10 +119,10 @@ export class AuthService {
 
       await this.findOne(id)
 
-      await this.usersRepository.update(id,{
-        Name:updateAuthDto.Name,
-        Rol:updateAuthDto.Rol,
-        Active:updateAuthDto.Active
+      await this.usersRepository.update(id, {
+        Name: updateAuthDto.Name,
+        Rol: updateAuthDto.Rol,
+        Active: updateAuthDto.Active
       })
 
       const result = await this.findOne(id)
@@ -136,7 +136,28 @@ export class AuthService {
     }
   }
 
-   async logout(): Promise<IResponse<any>> {
+  async delete(id: number): Promise<IResponse<any>> {
+    try {
+
+      await this.findOne(id)
+
+      const result = await this.usersRepository.delete(id)
+      if (!result.affected) {
+        // aquí puedes lanzar NotFoundException si quieres
+        throw new NotFoundException(`Ticket ${id} no existe`);
+      }
+
+      return {
+        code: '000',
+        message: 'Se elimino con exito!',
+        data: null
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
+    }
+  }
+
+  async logout(): Promise<IResponse<any>> {
     return {
       code: '000',
       message: 'Sesión cerrada con éxito',

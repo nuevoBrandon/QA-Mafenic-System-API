@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { IResponse } from 'src/Interfaces';
+import { IResponse, ITicket } from 'src/Interfaces';
 import { Ticket } from './entities/ticket.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -59,9 +59,26 @@ export class TicketService {
     }
   }
 
-  async findAll(): Promise<IResponse<any>> {
+  async findAll(
+    param: ITicket
+  ): Promise<IResponse<any>> {
     try {
-      const ticketData = await this.ticketRepository.find()
+      const { estado, prioridad, tipo } = param;
+
+      let activoNormalized: boolean | undefined = undefined;
+
+      const activoAny = (param as any).activo;
+
+      if (activoAny === 'true' || activoAny === true) activoNormalized = true;
+      else if (activoAny === 'false' || activoAny === false) activoNormalized = false;
+
+      const where: any = {};
+      if (estado?.trim()) where.estado = estado.trim();
+      if (prioridad?.trim()) where.prioridad = prioridad.trim();
+      if (tipo?.trim()) where.tipo = tipo.trim();
+      if (activoNormalized !== undefined) where.activo = activoNormalized;
+
+      const ticketData = await this.ticketRepository.find({ where })
       const user = await this.usersRepository.find({
         select: ['IdUser', 'Name', 'Rol', 'Active'],
         where: {
@@ -146,7 +163,7 @@ export class TicketService {
 
 
       Object.assign(ticket, updateTicketDto);
-     
+
       const ES_CERRADO = (s: string) => (s || '').trim().toUpperCase() === 'CERRADO';
       if (!ES_CERRADO(estadoAnterior) && ES_CERRADO(estadoNuevo)) {
         const ahora = new Date();
@@ -156,7 +173,7 @@ export class TicketService {
         const diffMs = ahora.getTime() - new Date(ticket.fechaCreacion).getTime();
         ticket.duracionCierreSeg = Math.floor(diffMs / 1000);
       }
-       const updatedTicket = await this.ticketRepository.save(ticket);
+      const updatedTicket = await this.ticketRepository.save(ticket);
       return {
         code: '000',
         message: 'Se actualizó con éxito!',
@@ -171,7 +188,32 @@ export class TicketService {
   }
 
 
-  remove(id: number) {
-    return `This action removes a #${id} ticket`;
+  async remove(id: number) {
+    try {
+      const ticket = await this.ticketRepository.findOne({
+        where: { idTicket: id },
+      });
+
+      if (!ticket) {
+        throw new NotFoundException('No existe el ticket');
+      }
+
+      const result = await this.ticketRepository.delete(id)
+      if (!result.affected) {
+        // aquí puedes lanzar NotFoundException si quieres
+        throw new NotFoundException(`Ticket ${id} no existe`);
+      }
+      
+      return {
+        code: '000',
+        message: 'Se elimino con exito!',
+        data: null
+      }
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error?.message || 'Error interno del servidor');
+    }
   }
 }

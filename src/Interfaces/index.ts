@@ -3,3 +3,10 @@ export interface IResponse<T>{
     message:string,
     data:T
 }
+
+export interface ITicket {
+  estado?: string;
+  prioridad?: string;
+  tipo?: string;
+  activo?: boolean; 
+}
