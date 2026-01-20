@@ -14,8 +14,8 @@ console.log('POSTGRES_PASSWORD:', process.env.POSTGRES_PASSWORD);
 console.log('POSTGRES_DB:', process.env.POSTGRES_DB);
 @Module({
   imports: [
-     ConfigModule.forRoot({
-      isGlobal: true, 
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -26,6 +26,9 @@ console.log('POSTGRES_DB:', process.env.POSTGRES_DB);
       database: process.env.POSTGRES_DB,
       autoLoadEntities: true,
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     AuthModule,
     TicketModule

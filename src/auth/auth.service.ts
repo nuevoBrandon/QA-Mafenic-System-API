@@ -4,7 +4,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { IResponse } from 'src/Interfaces';
+import { IResponse } from '../Interfaces';
 import { LoginDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
